@@ -2,9 +2,8 @@ import numpy as np
 import tkinter as tk
 import tkinter.filedialog
 import tkinter.messagebox
-import cv2
 
-from helpers import convert_image_pil_to_tk, convert_image_opencv_to_tk, set_entry_text
+from helpers import convert_image_pil_to_tk, set_entry_text
 from custom_widgets import ToggleButton
 from histogram import show_histogram
 from image_processor import ImageProcessor
@@ -355,14 +354,3 @@ class ImageWindow(tk.Toplevel):
 
     def on_crop_area_changed(self):
         self.image_processor.set_active_crop_area(self.frame.get_active_crop_area())
-
-
-def main():
-    main_window = tk.Tk()
-    image = cv2.imread(r"data/A_5kx.jpg")
-    ImageWindow(convert_image_opencv_to_tk(image), "TEST")
-    main_window.mainloop()
-
-
-if __name__ == "__main__":
-    main()
