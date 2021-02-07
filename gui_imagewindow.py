@@ -30,9 +30,7 @@ class ImageFrame(tk.Frame):
         self.canvas.pack_propagate(0)
 
         self.canvas.bind("<Button-1>", self.mouse_down)
-        self.canvas.bind("<Button1-Motion>", self.mouse_move_pressed)
         self.canvas.bind("<Motion>", self.mouse_move)
-        self.canvas.bind("<Button1-ButtonRelease>", self.mouse_up)
         self.canvas.bind("<Configure>", self.on_resize)
 
         self.input_top_left = (0, 0)
@@ -42,7 +40,14 @@ class ImageFrame(tk.Frame):
         self.measurement_label = None
         self.scale_factor = 1.0
 
-        self.input_mode = 'Crop'
+        # Current input mode, value can be:
+        # None - no input currently being processed
+        # CropPoint1 - waiting for first coordinate of crop area (ROI)
+        # CropPoint2 - waiting for second coordinate of crop area (ROI)
+        # MeasurePoint1 - waiting for first coordinate of measurement line
+        # MeasurePoint2 - waiting for second coordinate of measurement line
+        self.input_mode = 'None'
+
         self.crop_area_changed_callback = None
         self.measurement_finished_callback = None
 
@@ -103,7 +108,12 @@ class ImageFrame(tk.Frame):
                                               int(self.image.height * self.display_scale)))
             self.converted_image = convert_image_pil_to_tk(scaled_image)
             self.image_object = self.canvas.create_image(0, 0, image=self.converted_image, anchor=tk.NW)
+
             self.canvas.tag_raise(self.crop_rectangle)
+
+            if self.measurement_line:
+                self.canvas.tag_raise(self.measurement_line)
+                self.canvas.tag_raise(self.measurement_label)
 
     def update_crop_rectangle(self):
         self.set_active_crop_area_display_coords(self.input_top_left + self.input_bottom_right)
@@ -147,38 +157,28 @@ class ImageFrame(tk.Frame):
         self.canvas.tag_raise(self.measurement_line)
 
     def mouse_down(self, event):
-        if self.input_mode != 'MeasureEnd':
+        if 'Point1' in self.input_mode:
             self.input_top_left = (event.x, event.y)
             self.input_bottom_right = (event.x, event.y)
 
-        if self.input_mode == 'Crop':
+        if self.input_mode == 'CropPoint1':
             self.update_crop_rectangle()
+            self.input_mode = 'CropPoint2'
+        elif self.input_mode == 'CropPoint2':
+            self.input_mode = 'None'
 
-        if self.input_mode == 'MeasureStart':
+        if self.input_mode == 'MeasurePoint1':
             self.update_measurement_line()
-            self.input_mode = 'MeasureEnd'
-        elif self.input_mode == 'MeasureEnd':
+            self.input_mode = 'MeasurePoint2'
+        elif self.input_mode == 'MeasurePoint2':
             if self.measurement_finished_callback:
                 input_vector = np.array(self.input_bottom_right) - np.array(self.input_top_left)
                 self.measurement_finished_callback(np.linalg.norm(input_vector) / self.display_scale)
                 self.measurement_finished_callback = None
-            self.input_mode = 'Crop'
-
-    def mouse_move_pressed(self, event):
-        if self.input_mode == 'Crop':
-            x, y = event.x, event.y
-
-            # Limit input area to image size:
-            if self.image:
-                x = min(x, self.image.size[0])
-                y = min(y, self.image.size[1])
-
-            self.input_bottom_right = (x, y)
-
-            self.update_crop_rectangle()
+            self.input_mode = 'None'
 
     def mouse_move(self, event):
-        if self.input_mode == 'MeasureEnd':
+        if 'Point2' in self.input_mode:
             x, y = event.x, event.y
 
             # Limit input area to image size:
@@ -188,14 +188,19 @@ class ImageFrame(tk.Frame):
 
             self.input_bottom_right = (x, y)
 
+        if self.input_mode == 'MeasurePoint2':
             self.update_measurement_line()
 
-    def mouse_up(self, event):
-        return
+        if self.input_mode == 'CropPoint2':
+            self.update_crop_rectangle()
 
     def measure(self, measurement_finished_callback):
-        self.input_mode = 'MeasureStart'
+        self.input_mode = 'MeasurePoint1'
         self.measurement_finished_callback = measurement_finished_callback
+
+    # Initiates setting the ROI (Region of Interest)
+    def set_roi(self):
+        self.input_mode = 'CropPoint1'
 
 
 class MeasurementWindow(tk.Toplevel):
@@ -281,6 +286,9 @@ class ImageWindow(tk.Toplevel):
             command=lambda: self.button_toggled(self.histogram_button, True))
         self.histogram_button.pack(side=tk.LEFT)
 
+        self.roi_button = tk.Button(self.button_frame, text="ROI", width=12, command=self.set_roi)
+        self.roi_button.pack(side=tk.LEFT)
+
         self.measure_button = tk.Button(self.button_frame, text="Measure", width=12, command=self.start_measurement)
         self.measure_button.pack(side=tk.LEFT)
 
@@ -351,6 +359,9 @@ class ImageWindow(tk.Toplevel):
 
     def start_measurement(self):
         self.frame.measure(self.on_measurement_finished)
+
+    def set_roi(self):
+        self.frame.set_roi()
 
     def on_crop_area_changed(self):
         self.image_processor.set_active_crop_area(self.frame.get_active_crop_area())
