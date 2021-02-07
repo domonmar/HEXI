@@ -259,9 +259,11 @@ class ImageWindow(tk.Toplevel):
 
         self.title(title)
 
+        self.minsize(560, 340)
+
         # Create button bar:
         self.button_frame = tk.Frame(self)
-        self.button_frame.pack(fill=tk.BOTH, expand=True)
+        self.button_frame.pack(fill=tk.BOTH, expand=False)
 
         self.perimeter_button = ToggleButton(
             self.button_frame,
