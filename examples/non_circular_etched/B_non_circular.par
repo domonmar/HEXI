@@ -1,0 +1,15 @@
+{
+    "detector": "OpenCV-Hough",
+    "classifier": "Distance",
+    "parameters": {
+        "Edge detect threshold": 200,
+        "Circle threshold": 5,
+        "Radius": 42,
+        "Radius tolerance %": 10,
+        "Center distance (% of Radius)": 280,
+        "Blur": 9,
+        "Thresholding area": 0,
+        "Thresholding subtraction": 3,
+        "Loose circle tolerance": 35
+    }
+}
