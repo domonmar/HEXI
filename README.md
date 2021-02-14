@@ -1,6 +1,8 @@
 # HEXI
 HEXI is an image analysis application for the verification of hexagonal symmetry in spherical nanostructures.
 
+![Imgur](https://i.imgur.com/wSwISle.png)
+
 ## Installation
 The application requires Python >=3.8.5 to run.
 Clone or download the project from GitHub, then use pip to install the requirements (using a virtual environment is recommended):
