@@ -17,3 +17,6 @@ On Windows, you can use the provided init.bat to set up a virtual environment an
 
 ## License
 [MIT](https://choosealicense.com/licenses/mit/)
+
+## Publication
+Mária Domonkos et al., Image analysis algorithm for the verification of hexagonal symmetry in spherical nanostructures, Microelectronic Engineering, 2022, 10.1016/j.mee.2021.111635.
