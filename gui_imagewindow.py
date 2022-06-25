@@ -314,8 +314,8 @@ class ImageWindow(tk.Toplevel):
 
         self.update_result_image()
 
-    def evaluate(self, detector, classifier, parameters):
-        self.image_processor.evaluate(detector, classifier, parameters)
+    def evaluate(self, detector, processor, parameters):
+        self.image_processor.evaluate(detector, processor, parameters)
         self.update_result_image()
 
     def update_result_image(self):

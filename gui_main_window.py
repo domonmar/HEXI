@@ -21,7 +21,7 @@ class MainWindow(tk.Tk):
         self.auto_evaluate = False
 
         # Load available algorithms:
-        self.available_classifiers = ImageProcessor.get_available_classifiers()
+        self.available_processors = ImageProcessor.get_available_processors()
         self.available_detectors = ImageProcessor.get_available_detectors()
 
         # Timer job for triggering auto evaluation:
@@ -30,13 +30,13 @@ class MainWindow(tk.Tk):
         # Create GUI:
         input_frame = tk.Frame(self)
 
-        classifier_label = tk.Label(input_frame, text='Classifier:')
-        self.classifier_entry = ttk.Combobox(
+        processor_label = tk.Label(input_frame, text='Processor:')
+        self.processor_entry = ttk.Combobox(
             input_frame,
             width=20,
-            values=[classifier.get_name() for classifier in self.available_classifiers])
-        self.classifier_entry.current(0)
-        self.classifier_entry.bind("<<ComboboxSelected>>", self.on_algorithm_changed)
+            values=[processor.get_name() for processor in self.available_processors])
+        self.processor_entry.current(0)
+        self.processor_entry.bind("<<ComboboxSelected>>", self.on_algorithm_changed)
 
         detector_label = tk.Label(input_frame, text='Circle detector:')
         self.detector_entry = ttk.Combobox(input_frame, width=20, values=[
@@ -47,8 +47,8 @@ class MainWindow(tk.Tk):
         detector_label.grid(row=0, sticky=tk.W)
         self.detector_entry.grid(row=0, column=1, sticky=tk.W)
 
-        classifier_label.grid(row=1, sticky=tk.W)
-        self.classifier_entry.grid(row=1, column=1, sticky=tk.W)
+        processor_label.grid(row=1, sticky=tk.W)
+        self.processor_entry.grid(row=1, column=1, sticky=tk.W)
 
         input_frame.grid(row=0, column=0, sticky=tk.W)
 
@@ -92,8 +92,8 @@ class MainWindow(tk.Tk):
     def get_active_detector(self):
         return self.available_detectors[self.detector_entry.current()]
 
-    def get_active_classifier(self):
-        return self.available_classifiers[self.classifier_entry.current()]
+    def get_active_processor(self):
+        return self.available_processors[self.processor_entry.current()]
 
     def parameter_value_changed(self, event):
         if self.auto_evaluate:
@@ -117,7 +117,7 @@ class MainWindow(tk.Tk):
 
         # Get active parameter list:
         parameters = self.get_active_detector().get_parameter_list()
-        parameters2 = self.get_active_classifier().get_parameter_list()
+        parameters2 = self.get_active_processor().get_parameter_list()
 
         for parameter in parameters2:
             if parameter not in parameters:
@@ -155,7 +155,7 @@ class MainWindow(tk.Tk):
     def evaluate(self):
         if self.active_image_window:
             parameter_values = self.get_parameter_values()
-            self.active_image_window.evaluate(self.get_active_detector(), self.get_active_classifier(), parameter_values)
+            self.active_image_window.evaluate(self.get_active_detector(), self.get_active_processor(), parameter_values)
 
     def get_parameter_values(self):
         parameter_values = {}
@@ -190,7 +190,7 @@ class MainWindow(tk.Tk):
                 parameter_values = self.get_parameter_values()
                 data = {
                     'detector': self.get_active_detector().get_name(),
-                    'classifier': self.get_active_classifier().get_name(),
+                    'processor': self.get_active_processor().get_name(),
                     'parameters': parameter_values
                 }
                 json.dump(data, outfile, indent=4)
@@ -208,12 +208,18 @@ class MainWindow(tk.Tk):
                         detector_index = detector_entry_values.index(detector_name)
                         self.detector_entry.current(detector_index)
 
-                if 'classifier' in data:
-                    classifier_name = data['classifier']
-                    classifier_entry_values = self.classifier_entry["values"]
-                    if classifier_name in classifier_entry_values:
-                        classifier_index = classifier_entry_values.index(classifier_name)
-                        self.classifier_entry.current(classifier_index)
+                processor_name = None
+                if 'processor' in data:
+                    processor_name = data['processor']
+                # Process old version of saved parameters where 'processors' were called 'classifiers':
+                elif 'classifier' in data:      
+                    processor_name = data['classifier']
+                    
+                if processor_name is not None:
+                    processor_entry_values = self.processor_entry["values"]
+                    if processor_name in processor_entry_values:
+                        processor_index = processor_entry_values.index(processor_name)
+                        self.processor_entry.current(processor_index)
 
                 self.update_parameters_gui()
 

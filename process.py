@@ -1,9 +1,9 @@
 import cv2
 
 
-def process_image(img, detector, detector_parameters, classifier, classifier_parameters):
+def process_image(img, detector, detector_parameters, processor, processor_parameters):
     circles = detector.evaluate(img, detector_parameters)
-    circle_classification = classifier.evaluate(img, circles, classifier_parameters)
+    circle_classification = processor.evaluate(img, circles, processor_parameters)
 
     return circles, circle_classification
 

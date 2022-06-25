@@ -18,7 +18,7 @@ class ImageProcessor:
 
         # Image processing results:
         self.circles = []
-        self.circle_classification = []
+        self.processor_results = []
 
         self.load_image(image_path)
 
@@ -28,10 +28,10 @@ class ImageProcessor:
 
         # Algorithms:
         self.detector = None
-        self.classifier = None
+        self.processor = None
 
     @staticmethod
-    def get_available_classifiers():
+    def get_available_processors():
         return [BrightnessClassifier, BrightnessClassifierAdaptive, DistanceClassifier]
 
     @staticmethod
@@ -43,22 +43,22 @@ class ImageProcessor:
         self.image = cv2.imread(image_path)
         self.grayscale_image = cv2.cvtColor(self.image, cv2.COLOR_BGR2GRAY)
 
-    def evaluate(self, detector, classifier, parameters):
+    def evaluate(self, detector, processor, parameters):
         start_time = time.perf_counter()
 
         self.detector = detector
-        self.classifier = classifier
+        self.processor = processor
 
         # Get cropped area:
         x0, y0, x1, y1 = self.active_crop_area
         cropped_img = self.grayscale_image[y0:y1, x0:x1]
 
         # Process cropped image:
-        self.circles, self.circle_classification = process_image(
+        self.circles, self.processor_results = process_image(
             cropped_img,
             self.detector,
             parameters,
-            self.classifier,
+            self.processor,
             parameters)
 
         # Update result image:
@@ -69,7 +69,7 @@ class ImageProcessor:
     def set_active_crop_area(self, active_crop_area):
         self.active_crop_area = active_crop_area
         self.circles = []
-        self.circle_classification = []
+        self.processor_results = []
 
     def autodetect_crop_area(self):
         # Calculate image derivative in vertical direction:
@@ -94,12 +94,12 @@ class ImageProcessor:
     def update_result_image(self):
         self.result_image = convert_image_opencv_to_pil(self.image)
         
-        if self.classifier is not None:
+        if self.processor is not None:
             draw_parameters = {
                 'draw_perimeters' : self.draw_perimeters, 
                 'draw_info_text' : self.draw_info_text
                 }
-            self.classifier.update_result_image(self.result_image, self.active_crop_area, self.circles, self.circle_classification, draw_parameters)
+            self.processor.update_result_image(self.result_image, self.active_crop_area, self.circles, self.processor_results, draw_parameters)
 
     def get_image_size(self):
         return (len(self.image[0]), len(self.image))
