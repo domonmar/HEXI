@@ -3,10 +3,11 @@ import time
 
 from process import process_image
 from helpers import convert_image_opencv_to_pil
-from classifiers.classification_brightness import BrightnessClassifier, BrightnessClassifierAdaptive
-from classifiers.classification_distance import DistanceClassifier
+from processors.classifiers.classification_brightness import BrightnessClassifier, BrightnessClassifierAdaptive
+from processors.classifiers.classification_distance import DistanceClassifier
+from processors.none_processor import NoneProcessor
 from detectors.detector_opencv_hough import OpenCVHoughDetector
-
+from drawing_utilities import draw_circles_on_image
 
 class ImageProcessor:
     def __init__(self, image_path):
@@ -32,7 +33,7 @@ class ImageProcessor:
 
     @staticmethod
     def get_available_processors():
-        return [BrightnessClassifier, BrightnessClassifierAdaptive, DistanceClassifier]
+        return [BrightnessClassifier, BrightnessClassifierAdaptive, DistanceClassifier, NoneProcessor]
 
     @staticmethod
     def get_available_detectors():
@@ -94,12 +95,14 @@ class ImageProcessor:
     def update_result_image(self):
         self.result_image = convert_image_opencv_to_pil(self.image)
         
-        if self.processor is not None:
+        if self.processor is not None and hasattr(self.processor, 'update_result_image') and callable(self.processor.update_result_image):
             draw_parameters = {
                 'draw_perimeters' : self.draw_perimeters, 
                 'draw_info_text' : self.draw_info_text
                 }
             self.processor.update_result_image(self.result_image, self.active_crop_area, self.circles, self.processor_results, draw_parameters)
+        else:
+            draw_circles_on_image(self.result_image, self.active_crop_area, self.circles, self.draw_perimeters, None, [(50, 50, 255)])
 
     def get_image_size(self):
         return (len(self.image[0]), len(self.image))

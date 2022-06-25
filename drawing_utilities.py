@@ -9,7 +9,7 @@ def rect_around(x, y, size, offset_x, offset_y):
     y2 = int(y) + int(size) + int(offset_y)
     return [x1, y1, x2, y2]
 
-def draw_circles_on_image(img, active_image_area, circles, draw_perimeters, circle_classes, circle_class_colors = [(255, 0, 0), (0, 255, 0)]):
+def draw_circles_on_image(img, active_image_area, circles, draw_perimeters, circle_classes = None, circle_class_colors = [(255, 0, 0), (0, 255, 0)]):
     result_image = img
 
     if len(circles) > 0:
@@ -19,7 +19,7 @@ def draw_circles_on_image(img, active_image_area, circles, draw_perimeters, circ
         offset_x, offset_y, dummy1, dummy2 = active_image_area
 
         for index, circle in enumerate(circles):
-            circle_class = circle_classes[index]
+            circle_class = circle_classes[index] if circle_classes is not None else 0
             color = circle_class_colors[circle_class]
             center_x = circle[0]
             center_y = circle[1]
