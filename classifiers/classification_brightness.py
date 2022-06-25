@@ -1,6 +1,7 @@
+from matplotlib.pyplot import draw
 import numpy as np
 import cv2
-
+from .classification_common import update_result_image
 
 def circle_avg_brightness(circle, img):
     sum_brightness = 0
@@ -86,6 +87,10 @@ class BrightnessClassifier:
     def evaluate(img, circles, parameters):
         return classify_circles_by_brightness(img, circles, parameters['Loose circle tolerance'] / 50.0)
 
+    @staticmethod
+    def update_result_image(img, active_image_area, circles, results : list[int], draw_parameters):
+        update_result_image(img, active_image_area, circles, results, draw_parameters)
+
 
 class BrightnessClassifierAdaptive:
     def __init__(self):
@@ -105,3 +110,8 @@ class BrightnessClassifierAdaptive:
     @staticmethod
     def evaluate(img, circles, parameters):
         return classify_circles_by_brightness_adaptive(img, circles, parameters['Loose circle tolerance'] / 50.0, parameters['Averaging area'])
+
+    @staticmethod
+    def update_result_image(img, active_image_area, circles, results : list[int], draw_parameters):
+        update_result_image(img, active_image_area, circles, results, draw_parameters)
+        

@@ -1,6 +1,6 @@
 import math
 from scipy import spatial
-
+from .classification_common import update_result_image
 
 def point_distance_squared(point_1, point_2):
     return (float(point_2[0]) - float(point_1[0]))**2 + (float(point_2[1]) - float(point_1[1]))**2
@@ -66,3 +66,7 @@ class DistanceClassifier:
     @staticmethod
     def evaluate(img, circles, parameters):
         return classify_circles_by_distance(img, circles, parameters['Radius'], (parameters['Loose circle tolerance'] + 49.0) / 50.0)
+
+    @staticmethod
+    def update_result_image(img, active_image_area, circles, results : list[int], draw_parameters):
+        update_result_image(img, active_image_area, circles, results, draw_parameters)
