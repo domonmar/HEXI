@@ -6,6 +6,7 @@ from helpers import convert_image_opencv_to_pil
 from processors.classifiers.classification_brightness import BrightnessClassifier, BrightnessClassifierAdaptive
 from processors.classifiers.classification_distance import DistanceClassifier
 from processors.none_processor import NoneProcessor
+from processors.radial_distribution_function import RadialDistributionFunction
 from detectors.detector_opencv_hough import OpenCVHoughDetector
 from drawing_utilities import draw_circles_on_image
 
@@ -33,7 +34,7 @@ class ImageProcessor:
 
     @staticmethod
     def get_available_processors():
-        return [BrightnessClassifier, BrightnessClassifierAdaptive, DistanceClassifier, NoneProcessor]
+        return [BrightnessClassifier, BrightnessClassifierAdaptive, DistanceClassifier, RadialDistributionFunction, NoneProcessor]
 
     @staticmethod
     def get_available_detectors():

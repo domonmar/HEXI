@@ -33,13 +33,13 @@ class MainWindow(tk.Tk):
         processor_label = tk.Label(input_frame, text='Processor:')
         self.processor_entry = ttk.Combobox(
             input_frame,
-            width=20,
+            width=30,
             values=[processor.get_name() for processor in self.available_processors])
         self.processor_entry.current(0)
         self.processor_entry.bind("<<ComboboxSelected>>", self.on_algorithm_changed)
 
         detector_label = tk.Label(input_frame, text='Circle detector:')
-        self.detector_entry = ttk.Combobox(input_frame, width=20, values=[
+        self.detector_entry = ttk.Combobox(input_frame, width=30, values=[
             detector.get_name() for detector in self.available_detectors])
         self.detector_entry.current(0)
         self.detector_entry.bind("<<ComboboxSelected>>", self.on_algorithm_changed)
