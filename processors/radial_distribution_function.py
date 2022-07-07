@@ -44,6 +44,8 @@ class RadialDistributionFunction:
         print(result, sep='\n')
 
         plt.plot(*zip(*result))
+        plt.xlabel("r")
+        plt.ylabel("g(r)")
         plt.show()
 
         return result
