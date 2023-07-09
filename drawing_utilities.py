@@ -37,13 +37,13 @@ def draw_info_text_on_image(img, info_text):
     draw = PIL.ImageDraw.Draw(img)
 
     font = PIL.ImageFont.truetype("cour.ttf", 20)
-    text_size = draw.multiline_textsize(info_text, font=font)
+    text_size = draw.multiline_textbbox((0, 0), text=info_text, font=font)
 
     padding = 5
 
     pos_x = padding
-    pos_y = img.height - text_size[1] - padding
+    pos_y = img.height - text_size[3] - padding
 
-    draw.rectangle([0, pos_y - padding, text_size[0] + padding + padding,
+    draw.rectangle([0, pos_y - padding, text_size[2] + padding + padding,
                     img.height], fill=(255, 255, 255), outline=None, width=1)
     draw.multiline_text((pos_x, pos_y), info_text, font=font, fill=(0, 0, 0))
